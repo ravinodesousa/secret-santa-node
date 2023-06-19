@@ -105,6 +105,8 @@ router.post("/generate-santa-list", function (req, res) {
 
 router.post("/save-santa-list", async function (req, res) {
   if ("secretSantaList" in req.body) {
+    let lastRecord = await SecretSanta.findOne({ order: [["id", "DESC"]] });
+
     for (item of req.body?.secretSantaList) {
       let employee = await User.findOne({
         where: { email: item["Employee_EmailID"] },
@@ -132,6 +134,7 @@ router.post("/save-santa-list", async function (req, res) {
         employee: employee?.email,
         secret_child: secretChild?.email,
         date: new Date(),
+        secret_id: lastRecord ? lastRecord?.secret_id + 1 : 1,
       });
     }
 
@@ -139,6 +142,26 @@ router.post("/save-santa-list", async function (req, res) {
   } else {
     res.status(500).json({ message: "no data found" });
   }
+});
+
+router.get("/santa-list", async function (req, res) {
+  let data = [];
+  let allSecretIds = await SecretSanta.findAll({
+    group: "secret_id",
+    order: [["secret_id", "DESC"]],
+  });
+
+  for (const item of allSecretIds) {
+    let allRecords = await SecretSanta.findAll({
+      where: {
+        secret_id: item.secret_id,
+      },
+      include: [{ all: true }],
+    });
+    data.push(allRecords);
+  }
+
+  res.status(200).json(data);
 });
 
 module.exports = router;

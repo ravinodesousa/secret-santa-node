@@ -8,6 +8,10 @@ const SecretSanta = sequelize.define("SecretSanta", {
     autoIncrement: true,
     primaryKey: true,
   },
+  secret_id: {
+    // this id helps to group records
+    type: DataTypes.INTEGER,
+  },
   employee: {
     type: DataTypes.STRING,
     references: {
@@ -23,6 +27,12 @@ const SecretSanta = sequelize.define("SecretSanta", {
     },
   },
   date: DataTypes.DATE,
+});
+
+SecretSanta.belongsTo(User, { foreignKey: "employee", as: "employee_data" });
+SecretSanta.belongsTo(User, {
+  foreignKey: "secret_child",
+  as: "secret_child_data",
 });
 
 module.exports = SecretSanta;
