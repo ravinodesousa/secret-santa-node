@@ -35,6 +35,7 @@ router.post("/generate-santa-list", function (req, res) {
 
     let data = reader.utils.sheet_to_json(file.Sheets[file.SheetNames[0]]);
 
+    // console.log("data", data);
     if (
       ![...columnsArray].includes("Employee_Name") &&
       ![...columnsArray].includes("Employee_EmailID")

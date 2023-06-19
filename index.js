@@ -9,6 +9,15 @@ const route = require("./routes");
 const PORT = process.env.PORT || 3001;
 const app = express();
 
+const initDB = async () => {
+  try {
+    await sequelize.authenticate();
+    await sequelize.sync();
+  } catch (error) {
+    console.error("Unable to connect to the database:", error);
+  }
+};
+
 app.use(bodyParser.json());
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
@@ -21,19 +30,13 @@ app.use(
 // routes
 app.use("/", route);
 
-try {
-  sequelize.authenticate().then((response) => {
-    console.log("Connection has been established successfully.");
-    sequelize.sync().then((response) => {
-      console.log("Database synced.");
-    });
-  });
-} catch (error) {
-  console.error("Unable to connect to the database:", error);
-}
-
 app.listen(PORT, () => {
   console.log(`server running on port ${PORT}`);
 });
 
-expressListRoutes(app);
+if (!Object.keys(process.env).includes("JEST_WORKER_ID")) {
+  initDB();
+}
+// expressListRoutes(app);
+
+module.exports = { app, initDB };
